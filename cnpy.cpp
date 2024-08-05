@@ -63,8 +63,19 @@ void cnpy::parse_npy_header(unsigned char* buffer,size_t& word_size, std::vector
     //std::string magic_string(buffer,6);
     uint8_t major_version = *reinterpret_cast<uint8_t*>(buffer+6);
     uint8_t minor_version = *reinterpret_cast<uint8_t*>(buffer+7);
-    uint16_t header_len = *reinterpret_cast<uint16_t*>(buffer+8);
-    std::string header(reinterpret_cast<char*>(buffer+9),header_len);
+
+    uint32_t header_len;
+    unsigned char *header_loc;
+
+    if (major_version < 2) {
+        header_len = *reinterpret_cast<uint16_t*>(buffer+8);
+        header_loc = buffer + 10;
+    } else {
+        header_len = *reinterpret_cast<uint32_t*>(buffer+8);
+        header_loc = buffer + 12;
+    }
+
+    std::string header(reinterpret_cast<char*>(header_loc),header_len);
 
     size_t loc1, loc2;
 

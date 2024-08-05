@@ -252,12 +252,19 @@ namespace cnpy {
         dict.insert(dict.end(),remainder,' ');
         dict.back() = '\n';
 
+        uint32_t dict_size = dict.size();
+        uint8_t version = (dict_size < 65536) ? 0x01 : 0x02;
+
         std::vector<char> header;
         header += (char) 0x93;
         header += "NUMPY";
-        header += (char) 0x01; //major version of numpy format
+        header += (char) version; //major version of numpy format
         header += (char) 0x00; //minor version of numpy format
-        header += (uint16_t) dict.size();
+        if (version == 1) {
+            header += (uint16_t) dict_size;
+        } else {
+            header += dict_size;
+        }
         header.insert(header.end(),dict.begin(),dict.end());
 
         return header;
